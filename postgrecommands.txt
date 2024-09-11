@@ -1,0 +1,44 @@
+-- Таблица направлений (без изменений)
+CREATE TABLE directions (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+-- Таблица курсов (без изменений)
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    direction_id INT REFERENCES directions(id),
+    course_number INT NOT NULL
+);
+
+-- Таблица семестров (без изменений)
+CREATE TABLE semesters (
+    id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES courses(id),
+    semester_number INT NOT NULL
+);
+
+-- Таблица предметов с указанием направления
+CREATE TABLE subjects (
+    id SERIAL PRIMARY KEY,
+    semester_id INT REFERENCES semesters(id),
+    direction_id INT REFERENCES directions(id),  -- Добавляем связь с направлением
+    subject_name VARCHAR(100) NOT NULL,
+    info TEXT
+);
+-- Добавляем предметы для ИСИТ
+INSERT INTO subjects (semester_id, direction_id, subject_name, info) VALUES
+(1, 1, 'Математика', 'Информация по математике для 1 курса ИСИТ, 1 семестр'),
+(1, 1, 'Программирование', 'Информация по программированию для 1 курса ИСИТ, 1 семестр');
+
+-- Добавляем предметы для ИВТ (даже если названия совпадают)
+INSERT INTO subjects (semester_id, direction_id, subject_name, info) VALUES
+(9, 2, 'Математика', 'Информация по математике для 1 курса ИВТ, 1 семестр'),
+(9, 2, 'Программирование', 'Информация по программированию для 1 курса ИВТ, 1 семестр');
+
+SELECT subject_name
+FROM subjects
+JOIN semesters ON subjects.semester_id = semesters.id
+JOIN courses ON semesters.course_id = courses.id
+JOIN directions ON subjects.direction_id = directions.id
+WHERE directions.name = 'ИСИТ' AND courses.course_number = 1 AND semesters.semester_number = 1;
